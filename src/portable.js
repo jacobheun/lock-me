@@ -20,7 +20,7 @@ module.exports = function lockPortable (name, callback) {
       }
       cb()
     }),
-    (cb) => fs.open(name, 'w+', (err, fd) => cb(err, fd)),
+    (cb) => fs.open(name, 'w+', cb),
     (fd, cb) => {
       fs.write(fd, JSON.stringify({
         ownerPID: process.pid
@@ -54,9 +54,7 @@ function processLockfile (name, callback) {
       case STATUS.LOCKED:
         return callback(new Error(`file ${name} already locked`))
       case STATUS.STALE:
-        return fs.unlink(name, (err) => {
-          callback(err)
-        })
+        return fs.unlink(name, callback)
       case STATUS.INVALID:
         return callback(new Error(`can't lock file ${name}: has invalid content`))
       default:
